@@ -1,0 +1,1442 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LoveConnect — Demo (Version 2)</title>
+
+    <!-- Google font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+         :root {
+            --bg1: #fff0f6;
+            --bg2: #ffd6ea;
+            --accent: #ff4b6e;
+            --accent2: #ff7aa2;
+            --muted: #666;
+            --card: #fff;
+            --glass: rgba(255, 255, 255, 0.7);
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(255, 86, 128, 0.06), transparent), linear-gradient(135deg, var(--bg1), var(--bg2));
+            color: #231f20;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 28px;
+        }
+        /* app shell */
+        
+        .app {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 320px 1fr 360px;
+            gap: 20px;
+            align-items: start;
+        }
+        /* left column - auth / profile summary */
+        
+        .panel {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 12px 40px rgba(23, 7, 20, 0.06);
+            position: relative;
+        }
+        
+        .brand {
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+        }
+        
+        .brand .logo {
+            font-size: 22px
+        }
+        
+        .small {
+            font-size: 13px;
+            color: var(--muted)
+        }
+        
+        .muted {
+            color: var(--muted)
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 8px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid #ffe9f0;
+            cursor: pointer;
+            text-align: center;
+            color: var(--accent);
+            font-weight: 600
+        }
+        
+        .tab.active {
+            background: linear-gradient(90deg, #fff, #fff);
+            box-shadow: inset 0 -3px 0 rgba(255, 122, 162, 0.06)
+        }
+        
+        input,
+        select,
+        textarea,
+        button {
+            font-family: inherit;
+            outline: none;
+        }
+        
+        .form-row {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+        
+        .form-row input,
+        .form-row textarea,
+        .form-row select {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #f0dee6;
+            background: #fff;
+        }
+        
+        button.primary {
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border: none;
+            color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700
+        }
+        
+        button.ghost {
+            background: #fff;
+            border: 1px solid #ffdfe8;
+            color: var(--accent);
+            padding: 8px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+        /* center: discover/swipe area */
+        
+        .center-panel {
+            min-height: 640px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        
+        .discover-card {
+            background: transparent;
+            min-height: 640px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        /* swipe stack */
+        
+        .stack {
+            width: 360px;
+            height: 620px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-swipe {
+            width: 360px;
+            height: 600px;
+            border-radius: 16px;
+            background: var(--card);
+            box-shadow: 0 18px 50px rgba(15, 8, 20, 0.08);
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: auto;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform .35s cubic-bezier(.2, .9, .2, 1), opacity .25s ease, box-shadow .25s ease;
+            touch-action: pan-x;
+        }
+        
+        .card-swipe img {
+            height: 62%;
+            width: 100%;
+            object-fit: cover
+        }
+        
+        .card-info {
+            padding: 14px;
+            flex: 1;
+            display: flex;
+            flex-direction: column
+        }
+        
+        .card-info h3 {
+            margin: 0;
+            color: var(--accent)
+        }
+        
+        .card-info p {
+            color: var(--muted);
+            margin-top: 8px;
+            flex: 1
+        }
+        
+        .action-row {
+            display: flex;
+            justify-content: center;
+            padding: 12px;
+            gap: 18px
+        }
+        
+        .action-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06)
+        }
+        
+        .skip {
+            background: #fff;
+            border: 1px solid #f0e6ea
+        }
+        
+        .like {
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            color: #fff
+        }
+        
+        .match-toast {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 10%;
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            z-index: 999;
+            animation: pop .3s ease;
+        }
+        
+        @keyframes pop {
+            from {
+                transform: translateX(-50%) scale(.9)
+            }
+            to {
+                transform: translateX(-50%) scale(1)
+            }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 6px
+        }
+        /* right column - chat / notifications*/
+        
+        .right-panel {
+            min-height: 640px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .matches,
+        .notifications,
+        .profile-view,
+        .admin-panel {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 10px 30px rgba(12, 6, 15, 0.04);
+        }
+        
+        .match-item,
+        .notif-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 8px;
+            border-radius: 10px;
+            margin-bottom: 6px
+        }
+        
+        .match-item img,
+        .notif-item img {
+            width: 64px;
+            height: 64px;
+            border-radius: 10px;
+            object-fit: cover
+        }
+        
+        .small-muted {
+            font-size: 13px;
+            color: var(--muted)
+        }
+        /* chat window */
+        
+        .chat-window {
+            height: 340px;
+            overflow: auto;
+            padding: 12px;
+            background: linear-gradient(180deg, #fff, #fff);
+            border-radius: 10px;
+            border: 1px solid #f2e6eb
+        }
+        
+        .bubble-me {
+            display: inline-block;
+            background: linear-gradient(90deg, #ffd5e2, #ffc7db);
+            padding: 8px;
+            border-radius: 12px;
+            margin: 8px 0;
+            max-width: 78%
+        }
+        
+        .bubble-you {
+            display: inline-block;
+            background: #f1f1f1;
+            padding: 8px;
+            border-radius: 12px;
+            margin: 8px 0;
+            max-width: 78%
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #f0dee6
+        }
+        /* modal */
+        
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000
+        }
+        
+        .modal {
+            background: var(--card);
+            padding: 18px;
+            border-radius: 12px;
+            max-width: 520px;
+            width: 92%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18)
+        }
+        
+        .qr {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            display: block;
+            margin: auto 0
+        }
+        /* admin table simple */
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 120px;
+            gap: 8px;
+            align-items: center;
+            padding: 6px;
+            border-radius: 8px
+        }
+        
+        .pill {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #fff0f6;
+            color: var(--accent);
+            font-weight: 700
+        }
+        
+        footer {
+            margin-top: 12px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px
+        }
+        
+        @media (max-width: 980px) {
+            .app {
+                grid-template-columns: 1fr;
+                padding-bottom: 40px
+            }
+            .center-panel {
+                order: 3
+            }
+            .right-panel {
+                order: 2
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+
+        <!-- LEFT: auth & profile summary -->
+        <div class="panel" id="leftPanel">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div class="brand"><span class="logo">💖</span> LoveConnect</div>
+                <div class="small-muted">v2 • Demo</div>
+            </div>
+
+            <div class="tabs" style="margin-top:14px">
+                <div class="tab active" id="tabUser">User</div>
+                <div class="tab" id="tabAdmin">Admin</div>
+            </div>
+
+            <!-- USER AUTH -->
+            <div id="userAuth" style="margin-top:12px">
+                <div class="small-muted">Login with Mobile (demo OTP)</div>
+                <div class="form-row">
+                    <input id="mobile" placeholder="Mobile number (demo)">
+                    <button class="primary" id="sendOtpBtn">Send OTP (demo)</button>
+                    <div id="otpBox" style="display:none">
+                        <input id="otp" placeholder="Enter OTP">
+                        <button class="primary" id="verifyOtpBtn">Verify</button>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:6px">
+                        <button class="ghost" id="btnCreateProfile">Create Profile</button>
+                        <button class="ghost" id="btnQuickGuest">Quick Guest</button>
+                    </div>
+                </div>
+                <hr style="margin:12px 0">
+            </div>
+
+            <!-- ADMIN AUTH -->
+            <div id="adminAuth" style="display:none;margin-top:4px">
+                <div class="small-muted">Admin login</div>
+                <div class="form-row">
+                    <input id="adminUser" placeholder="admin">
+                    <input id="adminPass" placeholder="password" value="">
+                    <button class="primary" id="adminLoginBtn">Login Admin</button>
+                </div>
+                <hr style="margin:12px 0">
+            </div>
+
+            <!-- profile summary for logged user -->
+            <div id="profileSummary" style="display:none;margin-top:8px">
+                <div style="display:flex;gap:12px;align-items:center">
+                    <div id="pfPhoto" style="width:84px;height:84px;border-radius:12px;background:#fff0f6;overflow:hidden"></div>
+                    <div>
+                        <div id="pfName" style="font-weight:800;color:var(--accent)"></div>
+                        <div id="pfMeta" class="small-muted"></div>
+                        <div style="margin-top:6px">
+                            <span class="pill" id="premiumPill" style="display:none">Premium</span>
+                            <button class="ghost" id="btnEditProfile" style="margin-left:6px">Edit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:10px">
+                    <div style="display:flex;gap:8px">
+                        <button class="primary" id="btnDiscover">Discover</button>
+                        <button class="ghost" id="btnChat">Chat</button>
+                        <button class="ghost" id="btnNotifications">Notifs</button>
+                    </div>
+                </div>
+
+                <div style="margin-top:12px">
+                    <button class="ghost" id="btnLogout" style="width:100%">Logout</button>
+                </div>
+
+            </div>
+
+            <!-- profile editor (hidden) -->
+            <div id="editor" style="display:none;margin-top:12px">
+                <div style="font-weight:700;margin-bottom:8px">Create / Edit Profile</div>
+                <div class="form-row">
+                    <label class="small-muted">Photo</label>
+                    <input type="file" id="photoInput" accept="image/*">
+                    <div id="preview" style="width:120px;height:120px;border-radius:12px;background:#fff0f6;overflow:hidden"></div>
+                    <label class="small-muted">Name</label>
+                    <input id="nameInput" placeholder="Your name">
+                    <label class="small-muted">Age</label>
+                    <input id="ageInput" type="number" min="18" placeholder="Age">
+                    <label class="small-muted">Gender</label>
+                    <select id="genderInput"><option value="">Prefer not to say</option><option>Female</option><option>Male</option><option>Non-binary</option></select>
+                    <label class="small-muted">Bio</label>
+                    <textarea id="bioInput" rows="3" placeholder="Short bio"></textarea>
+                    <div style="display:flex;gap:8px;margin-top:8px">
+                        <button class="primary" id="saveProfileBtn">Save</button>
+                        <button class="ghost" id="cancelEditBtn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <footer style="margin-top:14px" class="small-muted">Demo: localStorage • Not for production</footer>
+        </div>
+
+        <!-- CENTER: swipe area -->
+        <div class="center-panel">
+            <div class="panel discover-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+                    <div style="font-weight:800;color:var(--accent)">Discover</div>
+                    <div class="small-muted">Swipe to like • Mutual likes become matches</div>
+                </div>
+
+                <div class="stack" id="stack"></div>
+
+                <div class="controls" style="margin-top:10px">
+                    <button class="action-btn skip" id="btnSkip">❌</button>
+                    <button class="action-btn like" id="btnLike">❤️</button>
+                </div>
+
+                <div style="display:flex;justify-content:center;margin-top:12px">
+                    <button class="ghost" id="btnReload">Reload Profiles</button>
+                </div>
+
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:center;justify-content:center;margin-top:10px">
+                <div class="small-muted">Tip: create several profiles (Create Profile) to test matching</div>
+            </div>
+        </div>
+
+        <!-- RIGHT: matches, chat, notifications, admin -->
+        <div class="right-panel">
+
+            <div class="matches panel" id="matchesPanel">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div style="font-weight:800;color:var(--accent)">Matches</div>
+                    <div class="small-muted" id="matchesCount">0</div>
+                </div>
+                <div id="matchesList" style="margin-top:8px"></div>
+                <div style="margin-top:8px" id="chatArea" style="display:none">
+                    <div class="chat-window" id="chatWindow"></div>
+                    <div class="chat-input">
+                        <input id="msgText" placeholder="Type a message...">
+                        <button class="primary" id="sendMsgBtn">Send</button>
+                    </div>
+                    <div class="small-muted" id="freeMsgInfo">Free messages used: 0 / 10</div>
+                </div>
+            </div>
+
+            <div class="notifications panel" id="notifPanel">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div style="font-weight:800;color:var(--accent)">Notifications</div>
+                    <div class="small-muted">People who liked you</div>
+                </div>
+                <div id="notifList" style="margin-top:8px"></div>
+            </div>
+
+            <!-- admin area (hidden unless admin logged) -->
+            <div class="admin-panel panel" id="adminPanel" style="display:none">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div style="font-weight:800;color:var(--accent)">Admin</div>
+                    <div class="small-muted">Manage users & payments</div>
+                </div>
+
+                <div style="margin-top:10px">
+                    <div style="font-weight:700">Users</div>
+                    <div id="adminUsers" style="margin-top:8px"></div>
+                </div>
+
+                <div style="margin-top:10px">
+                    <div style="font-weight:700">Payments</div>
+                    <div id="adminPayments" style="margin-top:8px"></div>
+                </div>
+            </div>
+
+            <!-- premium card -->
+            <div class="profile-view panel" id="premiumCard">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div style="font-weight:800;color:var(--accent)">Premium</div>
+                    <div class="small-muted">₹9 / month</div>
+                </div>
+                <div style="margin-top:8px">
+                    <div class="small-muted">Unlimited messages & calls. 10 free messages trial included.</div>
+                </div>
+                <div style="margin-top:8px;display:flex;gap:8px;align-items:center;justify-content:center">
+                    <img id="qr" class="qr" src="" alt="qr">
+                </div>
+                <div style="display:flex;gap:8px;margin-top:8px">
+                    <input id="upiTxn" placeholder="Enter UPI txn id after payment (demo)" style="flex:1;padding:8px;border-radius:10px;border:1px solid #f0dee6">
+                    <button class="primary" id="submitPayment">Submit</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Match toast -->
+    <div id="matchToast" class="match-toast" style="display:none">
+        <div style="font-weight:800;color:var(--accent)">It's a Match! 💞</div>
+        <div style="margin-left:8px"><button class="primary" id="openChatBtn">Open Chat</button></div>
+    </div>
+
+    <!-- Premium Modal (hidden) -->
+    <div id="premiumModal" style="display:none" class="modal-backdrop">
+        <div class="modal">
+            <h3 style="color:var(--accent)">Upgrade to Premium</h3>
+            <p class="small-muted">Pay ₹9 / month. Scan QR with UPI app. UPI ID: <strong>345455345@axl</strong></p>
+            <img id="modalQR" class="qr" src="" alt="qr">
+            <div style="margin-top:8px">
+                <input id="modalTxn" placeholder="Enter txn id (demo)" style="width:100%;padding:8px;border-radius:8px;border:1px solid #f0dee6">
+                <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
+                    <button class="ghost" id="closePremiumModal">Close</button>
+                    <button class="primary" id="confirmPremiumBtn">I paid — submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /*
+          LoveConnect Demo v2 (single-file frontend)
+          - Data stored in localStorage (demo)
+          - Admin default: admin / admin123
+          - Premium demo: UPI id 345455345@axl (QR generated via free API)
+        */
+
+        (() => {
+                // storage keys
+                const KEYS = {
+                    users: 'lc_v2_users',
+                    actions: 'lc_v2_actions',
+                    matches: 'lc_v2_matches',
+                    messages: 'lc_v2_msgs',
+                    payments: 'lc_v2_payments',
+                    session: 'lc_v2_session'
+                };
+
+                // admin credentials (demo)
+                const ADMIN = {
+                    user: 'admin',
+                    pass: 'admin123'
+                };
+
+                // help: DOM
+                const $ = s => document.querySelector(s);
+                const $$ = s => Array.from(document.querySelectorAll(s));
+                const nowISO = () => new Date().toISOString();
+                const id = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+                // basic ensure
+                function ensure() {
+                    if (!localStorage.getItem(KEYS.users)) localStorage.setItem(KEYS.users, JSON.stringify([]));
+                    if (!localStorage.getItem(KEYS.actions)) localStorage.setItem(KEYS.actions, JSON.stringify([]));
+                    if (!localStorage.getItem(KEYS.matches)) localStorage.setItem(KEYS.matches, JSON.stringify([]));
+                    if (!localStorage.getItem(KEYS.messages)) localStorage.setItem(KEYS.messages, JSON.stringify([]));
+                    if (!localStorage.getItem(KEYS.payments)) localStorage.setItem(KEYS.payments, JSON.stringify([]));
+                }
+                ensure();
+
+                // storage helpers
+                const load = key => JSON.parse(localStorage.getItem(key) || '[]');
+                const save = (key, v) => localStorage.setItem(key, JSON.stringify(v));
+                const setSession = s => localStorage.setItem(KEYS.session, JSON.stringify(s));
+                const getSession = () => JSON.parse(localStorage.getItem(KEYS.session) || 'null');
+                const clearSession = () => localStorage.removeItem(KEYS.session);
+
+                // generate demo QR img
+                const UPI_ID = '345455345@axl';
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent('upi://pay?pa='+UPI_ID+'&pn=LoveConnect&tn=Premium&am=9')}`;
+                $('#qr').src = qrUrl;
+                $('#modalQR').src = qrUrl;
+
+                // UI elements shortcuts
+                const state = {
+                    dragged: null,
+                    draggedStart: null,
+                    topCard: null
+                };
+
+                // helpers to render preview image from file
+                $('#photoInput').addEventListener('change', (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const fr = new FileReader();
+                    fr.onload = ev => {
+                        $('#preview').innerHTML = `<img src="${ev.target.result}" style="width:120px;height:120px;object-fit:cover">`;
+                        $('#preview').dataset.photo = ev.target.result;
+                    };
+                    fr.readAsDataURL(f);
+                });
+
+                // auth tabs
+                $('#tabUser').onclick = () => {
+                    $('#tabUser').classList.add('active');
+                    $('#tabAdmin').classList.remove('active');
+                    $('#userAuth').style.display = 'block';
+                    $('#adminAuth').style.display = 'none';
+                };
+                $('#tabAdmin').onclick = () => {
+                    $('#tabAdmin').classList.add('active');
+                    $('#tabUser').classList.remove('active');
+                    $('#adminAuth').style.display = 'block';
+                    $('#userAuth').style.display = 'none';
+                };
+
+                // OTP demo
+                $('#sendOtpBtn').onclick = () => {
+                    const mobile = $('#mobile').value.trim();
+                    if (!mobile) {
+                        alert('Enter mobile');
+                        return;
+                    }
+                    const otp = (Math.floor(1000 + Math.random() * 9000)).toString();
+                    alert('Demo OTP: ' + otp);
+                    $('#otpBox').style.display = 'block';
+                    $('#otpBox').dataset.otp = otp;
+                };
+                $('#verifyOtpBtn').onclick = () => {
+                    const entered = $('#otp').value.trim();
+                    const otp = $('#otpBox').dataset.otp;
+                    if (entered !== otp) {
+                        alert('Invalid OTP');
+                        return;
+                    }
+                    // find or create user by mobile
+                    const users = load(KEYS.users);
+                    const mobile = $('#mobile').value.trim();
+                    let u = users.find(x => x.mobile === mobile);
+                    if (!u) {
+                        u = {
+                            id: id(),
+                            mobile,
+                            name: '',
+                            age: '',
+                            gender: '',
+                            bio: '',
+                            photo: '',
+                            premium: false,
+                            premium_expiry: null,
+                            free_msg_used: 0,
+                            created_at: nowISO(),
+                            blocked: false
+                        };
+                        users.push(u);
+                        save(KEYS.users, users);
+                    }
+                    setSession({
+                        role: 'user',
+                        id: u.id
+                    });
+                    enterUser();
+                };
+
+                // quick guest
+                $('#btnQuickGuest').onclick = () => {
+                    const users = load(KEYS.users);
+                    const u = {
+                        id: id(),
+                        mobile: '',
+                        name: 'Guest' + Math.floor(Math.random() * 999),
+                        age: '',
+                        gender: '',
+                        bio: '',
+                        photo: '',
+                        premium: false,
+                        premium_expiry: null,
+                        free_msg_used: 0,
+                        created_at: nowISO(),
+                        blocked: false
+                    };
+                    users.push(u);
+                    save(KEYS.users, users);
+                    setSession({
+                        role: 'user',
+                        id: u.id
+                    });
+                    enterUser();
+                };
+
+                // create profile
+                $('#btnCreateProfile').onclick = () => {
+                    // create empty and open editor
+                    const users = load(KEYS.users);
+                    const u = {
+                        id: id(),
+                        mobile: '',
+                        name: '',
+                        age: '',
+                        gender: '',
+                        bio: '',
+                        photo: '',
+                        premium: false,
+                        premium_expiry: null,
+                        free_msg_used: 0,
+                        created_at: nowISO(),
+                        blocked: false
+                    };
+                    users.push(u);
+                    save(KEYS.users, users);
+                    setSession({
+                        role: 'user',
+                        id: u.id
+                    });
+                    openEditor();
+                };
+
+                // admin login
+                $('#adminLoginBtn').onclick = () => {
+                    const u = $('#adminUser').value.trim(),
+                        p = $('#adminPass').value;
+                    if (u === ADMIN.user && p === ADMIN.pass) {
+                        setSession({
+                            role: 'admin',
+                            id: 'admin'
+                        });
+                        enterAdmin();
+                    } else alert('Invalid admin credentials');
+                };
+
+                // edit profile
+                $('#btnEditProfile').onclick = openEditor;
+                $('#cancelEditBtn').onclick = () => {
+                    $('#editor').style.display = 'none';
+                    refreshLeft();
+                };
+
+                $('#saveProfileBtn').onclick = () => {
+                    const s = getSession();
+                    if (!s || s.role !== 'user') return alert('No user session');
+                    const users = load(KEYS.users);
+                    const u = users.find(x => x.id === s.id);
+                    if (!u) return alert('User not found');
+                    u.name = $('#nameInput').value.trim();
+                    u.age = $('#ageInput').value.trim();
+                    u.gender = $('#genderInput').value;
+                    u.bio = $('#bioInput').value.trim();
+                    u.photo = $('#preview').dataset.photo || u.photo || '';
+                    save(KEYS.users, users);
+                    $('#editor').style.display = 'none';
+                    refreshLeft();
+                    renderStack();
+                    renderMatches();
+                    renderNotifs();
+                };
+
+                $('#btnLogout').onclick = () => {
+                    clearSession();
+                    location.reload();
+                };
+
+                // open editor and populate
+                function openEditor() {
+                    const s = getSession();
+                    if (!s || s.role !== 'user') return alert('No user');
+                    const users = load(KEYS.users);
+                    const u = users.find(x => x.id === s.id);
+                    $('#preview').innerHTML = u.photo ? `<img src="${u.photo}" style="width:120px;height:120px;object-fit:cover">` : '';
+                    $('#preview').dataset.photo = u.photo || '';
+                    $('#nameInput').value = u.name || '';
+                    $('#ageInput').value = u.age || '';
+                    $('#genderInput').value = u.gender || '';
+                    $('#bioInput').value = u.bio || '';
+                    $('#editor').style.display = 'block';
+                    // hide other panels
+                    $('#userAuth').style.display = 'none';
+                    $('#userAuth').style.display = 'none';
+                    $('#adminAuth').style.display = 'none';
+                }
+
+                // enter user area
+                function enterUser() {
+                    $('#userAuth').style.display = 'none';
+                    $('#adminAuth').style.display = 'none';
+                    $('#profileSummary').style.display = 'block';
+                    refreshLeft();
+                    renderStack();
+                    renderMatches();
+                    renderNotifs();
+                    refreshPremiumInfo();
+                }
+
+                // enter admin
+                function enterAdmin() {
+                    $('#userAuth').style.display = 'none';
+                    $('#adminAuth').style.display = 'none';
+                    $('#profileSummary').style.display = 'none';
+                    $('#adminPanel').style.display = 'block';
+                    renderAdmin();
+                }
+
+                // refresh left summary
+                function refreshLeft() {
+                    const s = getSession();
+                    if (!s || s.role !== 'user') return;
+                    const users = load(KEYS.users);
+                    const me = users.find(x => x.id === s.id);
+                    if (!me) return;
+                    $('#pfPhoto').innerHTML = me.photo ? `<img src="${me.photo}" style="width:84px;height:84px;object-fit:cover">` : '';
+                    $('#pfName').textContent = me.name || 'Anonymous';
+                    $('#pfMeta').textContent = (me.age ? me.age + ' • ' : '') + (me.gender || '');
+                    if (me.premium && me.premium_expiry && new Date(me.premium_expiry) > new Date()) {
+                        $('#premiumPill').style.display = 'inline-block';
+                    } else $('#premiumPill').style.display = 'none';
+                }
+
+                // PROFILE / DISCOVER LOGIC
+                $('#btnDiscover').onclick = () => renderStack();
+                $('#btnReload').onclick = () => renderStack();
+
+                // load sample users if none exist (for demo)
+                function seedIfEmpty() {
+                    const users = load(KEYS.users);
+                    if (users.length <= 2) {
+                        const samples = [{
+                            name: 'Aisha',
+                            age: '25',
+                            gender: 'Female',
+                            bio: 'Coffee lover • Traveler',
+                            photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=4b4f0b4c03b3a02b1b9d3f7a6a5f9d58'
+                        }, {
+                            name: 'Rohan',
+                            age: '28',
+                            gender: 'Male',
+                            bio: 'Into music & cycling',
+                            photo: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=7c3e9b8a3b7dc3aa9b7f5e4a6b7c6d56'
+                        }, {
+                            name: 'Meera',
+                            age: '23',
+                            gender: 'Female',
+                            bio: 'Artist • Weekend hikes',
+                            photo: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=3a2e8b2a1c1c91a9b8a8f4c7e3d2b1c7'
+                        }, ];
+                        for (const s of samples) {
+                            users.push({
+                                id: id(),
+                                mobile: '',
+                                name: s.name,
+                                age: s.age,
+                                gender: s.gender,
+                                bio: s.bio,
+                                photo: s.photo,
+                                premium: false,
+                                premium_expiry: null,
+                                free_msg_used: 0,
+                                created_at: nowISO(),
+                                blocked: false
+                            });
+                        }
+                        save(KEYS.users, users);
+                    }
+                }
+                seedIfEmpty();
+
+                // create card element
+                function createCard(p, idx) {
+                    const el = document.createElement('div');
+                    el.className = 'card-swipe';
+                    el.style.zIndex = 100 - idx;
+                    el.innerHTML = `
+      <img src="${p.photo || ''}">
+      <div class="card-info">
+        <h3>${escapeHtml(p.name || 'Anonymous')} <small class="small-muted">${escapeHtml(p.age || '')}</small></h3>
+        <p>${escapeHtml(p.bio || '')}</p>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <div class="pill">❤️ <small style="margin-left:6px">${p.name? 'Profile' : ''}</small></div>
+          <div style="margin-left:auto;color:var(--muted);font-size:13px">Joined ${new Date(p.created_at).toLocaleDateString()}</div>
+        </div>
+        <div style="margin-top:10px" class="action-row">
+          <button class="action-btn skip">❌</button>
+          <button class="action-btn like">❤️</button>
+        </div>
+      </div>
+    `;
+                    // implement drag (pointer events)
+                    let startX = 0,
+                        startY = 0,
+                        isDragging = false;
+                    el.addEventListener('pointerdown', (ev) => {
+                        el.setPointerCapture(ev.pointerId);
+                        startX = ev.clientX;
+                        startY = ev.clientY;
+                        isDragging = true;
+                        el.style.transition = 'none';
+                        state.dragged = el;
+                    });
+                    window.addEventListener('pointermove', (ev) => {
+                        if (!isDragging || state.dragged !== el) return;
+                        const dx = ev.clientX - startX;
+                        const dy = ev.clientY - startY;
+                        const rot = dx / 12;
+                        el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+                        const opacity = Math.max(0.4, 1 - Math.abs(dx) / 800);
+                        el.style.opacity = opacity;
+                    });
+                    window.addEventListener('pointerup', (ev) => {
+                        if (!isDragging || state.dragged !== el) return;
+                        isDragging = false;
+                        state.dragged = null;
+                        el.style.transition = 'transform .35s cubic-bezier(.2,.9,.2,1),opacity .25s ease';
+                        const dx = ev.clientX - startX;
+                        if (dx > 140) {
+                            // like
+                            actionLike(p.id, el);
+                        } else if (dx < -140) {
+                            // skip
+                            actionSkip(p.id, el);
+                        } else {
+                            el.style.transform = '';
+                            el.style.opacity = 1;
+                        }
+                    });
+
+                    // button clicks
+                    el.querySelector('.skip').onclick = () => actionSkip(p.id, el);
+                    el.querySelector('.like').onclick = () => actionLike(p.id, el);
+
+                    return el;
+                }
+
+                // render stack
+                function renderStack() {
+                    seedIfEmpty();
+                    const s = getSession();
+                    const stackEl = $('#stack');
+                    stackEl.innerHTML = '';
+                    if (!s || s.role !== 'user') {
+                        stackEl.innerHTML = `<div style="text-align:center;color:var(--muted)">Login as user to discover</div>`;
+                        return;
+                    }
+                    const meId = s.id;
+                    const users = load(KEYS.users).filter(u => u.id !== meId && !u.blocked && u.photo);
+                    const actions = load(KEYS.actions).filter(a => a.from_user === meId).map(a => a.to_user);
+                    const available = users.filter(u => !actions.includes(u.id));
+                    if (available.length === 0) {
+                        stackEl.innerHTML = `<div style="text-align:center;color:var(--muted)">No more profiles. Try later or check Notifications.</div>`;
+                        return;
+                    }
+                    // show top 6
+                    const top = available.slice(0, 6);
+                    top.forEach((p, idx) => {
+                        const card = createCard(p, idx);
+                        stackEl.appendChild(card);
+                        // small stagger
+                        card.style.transform = `translateY(${idx*6}px) scale(${1 - idx*0.02})`;
+                    });
+                }
+
+                // action skip
+                function actionSkip(toId, el) {
+                    const s = getSession();
+                    if (!s) return;
+                    const actions = load(KEYS.actions);
+                    const ex = actions.find(a => a.from_user === s.id && a.to_user === toId);
+                    if (ex) {
+                        ex.action = 'skip';
+                        ex.created_at = nowISO();
+                    } else actions.push({
+                        id: id(),
+                        from_user: s.id,
+                        to_user: toId,
+                        action: 'skip',
+                        created_at: nowISO()
+                    });
+                    save(KEYS.actions, actions);
+                    // animate out
+                    el.style.transform = 'translateX(-420px) rotate(-18deg)';
+                    el.style.opacity = 0;
+                    setTimeout(() => {
+                        renderStack();
+                        renderNotifs();
+                    }, 360);
+                }
+
+                // action like
+                function actionLike(toId, el) {
+                    const s = getSession();
+                    if (!s) return;
+                    const actions = load(KEYS.actions);
+                    const ex = actions.find(a => a.from_user === s.id && a.to_user === toId);
+                    if (ex) {
+                        ex.action = 'like';
+                        ex.created_at = nowISO();
+                    } else actions.push({
+                        id: id(),
+                        from_user: s.id,
+                        to_user: toId,
+                        action: 'like',
+                        created_at: nowISO()
+                    });
+                    save(KEYS.actions, actions);
+                    // check reciprocal
+                    const reciprocal = actions.find(a => a.from_user === toId && a.to_user === s.id && a.action === 'like');
+                    if (reciprocal) {
+                        // create match if not exist
+                        const matches = load(KEYS.matches);
+                        const ids = [s.id, toId].sort();
+                        const exist = matches.find(m => m.user_a === ids[0] && m.user_b === ids[1]);
+                        if (!exist) {
+                            matches.push({
+                                id: id(),
+                                user_a: ids[0],
+                                user_b: ids[1],
+                                created_at: nowISO()
+                            });
+                            save(KEYS.matches, matches);
+                        }
+                        // animate match toast
+                        $('#matchToast').style.display = 'flex';
+                        setTimeout(() => {
+                            $('#matchToast').style.display = 'none';
+                        }, 2800);
+                    }
+
+                    // animate card
+                    el.style.transform = 'translateX(420px) rotate(18deg)';
+                    el.style.opacity = 0;
+                    setTimeout(() => {
+                        renderStack();
+                        renderMatches();
+                        renderNotifs();
+                    }, 360);
+                }
+
+                // bottom buttons
+                $('#btnSkip').onclick = () => {
+                    const top = document.querySelector('.card-swipe');
+                    if (top) {
+                        const toId = getProfileIdFromCard(top);
+                        if (toId) actionSkip(toId, top);
+                    }
+                };
+                $('#btnLike').onclick = () => {
+                    const top = document.querySelector('.card-swipe');
+                    if (top) {
+                        const toId = getProfileIdFromCard(top);
+                        if (toId) {
+                            // find profile by image src (we stored id in data-id)
+                            actionLike(toId, top);
+                        }
+                    }
+                };
+
+                function getProfileIdFromCard(cardEl) {
+                    // image src -> find user id by photo reference (works for demo)
+                    const img = cardEl.querySelector('img');
+                    const src = img ? img.src : '';
+                    const users = load(KEYS.users);
+                    const p = users.find(u => u.photo === src || u.photo === img.src);
+                    if (p) return p.id;
+                    // if not match by src, fallback to top available user
+                    const s = getSession();
+                    const avail = load(KEYS.users).filter(u => u.id !== s.id && u.photo);
+                    return avail.length ? avail[0].id : null;
+                }
+
+                // matches / chat
+                function renderMatches() {
+                    const s = getSession();
+                    if (!s || s.role !== 'user') {
+                        $('#matchesList').innerHTML = '<div class="small-muted">Login to see matches</div>';
+                        return;
+                    }
+                    const matches = load(KEYS.matches).filter(m => m.user_a === s.id || m.user_b === s.id);
+                    const users = load(KEYS.users);
+                    if (matches.length === 0) {
+                        $('#matchesList').innerHTML = '<div class="small-muted">No matches yet</div>';
+                        $('#matchesCount').textContent = '0';
+                        return;
+                    }
+                    $('#matchesCount').textContent = matches.length;
+                    $('#matchesList').innerHTML = matches.map(m => {
+                        const other = (m.user_a === s.id) ? m.user_b : m.user_a;
+                        const u = users.find(x => x.id === other) || {};
+                        // last message preview
+                        const msgs = load(KEYS.messages).filter(ms => (ms.sender === s.id && ms.receiver === other) || (ms.sender === other && ms.receiver === s.id));
+                        const last = msgs.length ? msgs[msgs.length - 1].msg.slice(0, 40) : 'Say hi!';
+                        return `<div class="match-item" data-id="${other}"><img src="${u.photo||''}"><div style="flex:1"><strong>${escapeHtml(u.name||'Anonymous')}</strong><div class="small-muted">${escapeHtml(last)}</div></div><div><button class="ghost openChatBtn" data-id="${other}">Open</button></div></div>`;
+                    }).join('');
+                    $$('.openChatBtn').forEach(b => b.onclick = () => openChat(b.dataset.id));
+                }
+
+                function openChat(otherId) {
+                    const s = getSession();
+                    if (!s || s.role !== 'user') return;
+                    $('#chatArea').style.display = 'block';
+                    $('#chatWindow').innerHTML = '';
+                    renderChatWindow(otherId);
+                    // set send action
+                    $('#sendMsgBtn').onclick = () => {
+                        const text = $('#msgText').value.trim();
+                        if (!text) return;
+                        // check free messages
+                        const users = load(KEYS.users);
+                        const me = users.find(x => x.id === s.id);
+                        if (!me.premium && (me.free_msg_used || 0) >= 10) {
+                            if (!confirm('Free messages exhausted. Would you like to upgrade to Premium?')) return;
+                            openPremiumModal();
+                            return;
+                        }
+                        const msgs = load(KEYS.messages);
+                        msgs.push({
+                            id: id(),
+                            sender: s.id,
+                            receiver: otherId,
+                            msg: text,
+                            ts: nowISO()
+                        });
+                        save(KEYS.messages, msgs);
+                        if (!me.premium) {
+                            me.free_msg_used = (me.free_msg_used || 0) + 1;
+                            save(KEYS.users, users);
+                        }
+                        $('#msgText').value = '';
+                        renderChatWindow(otherId);
+                        renderMatches();
+                        refreshLeft();
+                    };
+                }
+
+                function renderChatWindow(otherId) {
+                    const s = getSession();
+                    if (!s) return;
+                    const msgs = load(KEYS.messages);
+                    const conv = msgs.filter(m => (m.sender === s.id && m.receiver === otherId) || (m.sender === otherId && m.receiver === s.id));
+                    const users = load(KEYS.users);
+                    const other = users.find(x => x.id === otherId) || {};
+                    $('#chatWindow').innerHTML = conv.map(m => {
+                        const cls = m.sender === s.id ? 'bubble-me' : 'bubble-you';
+                        return `<div style="text-align:${m.sender===s.id?'right':'left'}"><span class="${cls}">${escapeHtml(m.msg)}</span></div>`;
+                    }).join('');
+                    $('#chatWindow').scrollTop = $('#chatWindow').scrollHeight;
+                    // free msg info
+                    const me = users.find(x => x.id === s.id);
+                    $('#freeMsgInfo').textContent = `Free messages used: ${me.free_msg_used || 0} / 10`;
+                }
+
+                // notifications (people who liked you)
+                function renderNotifs() {
+                    const s = getSession();
+                    if (!s || s.role !== 'user') return;
+                    const actions = load(KEYS.actions);
+                    const users = load(KEYS.users);
+                    const likes = actions.filter(a => a.to_user === s.id && a.action === 'like');
+                    const pending = likes.filter(l => !actions.find(a => a.from_user === s.id && a.to_user === l.from_user && a.action === 'like'));
+                    $('#notifList').innerHTML = pending.length ? pending.map(l => {
+                        const u = users.find(x => x.id === l.from_user) || {};
+                        return `<div class="notif-item"><img src="${u.photo||''}"><div style="flex:1"><strong>${escapeHtml(u.name||'Anonymous')}</strong><div class="small-muted">Liked ${new Date(l.created_at).toLocaleString()}</div></div><div><button class="ghost likeBackBtn" data-id="${u.id}">Like back</button></div></div>`;
+                    }).join('') : `<div class="small-muted">No notifications</div>`;
+                    $$('.likeBackBtn').forEach(b => b.onclick = () => {
+                        const uid = b.dataset.id;
+                        doLikeBack(uid);
+                    });
+                }
+
+                function doLikeBack(uid) {
+                    const s = getSession();
+                    if (!s) return;
+                    const actions = load(KEYS.actions);
+                    const ex = actions.find(a => a.from_user === s.id && a.to_user === uid);
+                    if (ex) {
+                        ex.action = 'like';
+                        ex.created_at = nowISO();
+                    } else actions.push({
+                        id: id(),
+                        from_user: s.id,
+                        to_user: uid,
+                        action: 'like',
+                        created_at: nowISO()
+                    });
+                    save(KEYS.actions, actions);
+                    // check match
+                    const reciprocal = actions.find(a => a.from_user === uid && a.to_user === s.id && a.action === 'like');
+                    if (reciprocal) {
+                        const matches = load(KEYS.matches);
+                        const ids = [s.id, uid].sort();
+                        const exist = matches.find(m => m.user_a === ids[0] && m.user_b === ids[1]);
+                        if (!exist) {
+                            matches.push({
+                                id: id(),
+                                user_a: ids[0],
+                                user_b: ids[1],
+                                created_at: nowISO()
+                            });
+                            save(KEYS.matches, matches);
+                            $('#matchToast').style.display = 'flex';
+                            setTimeout(() => $('#matchToast').style.display = 'none', 2800);
+                        }
+                    }
+                    renderNotifs();
+                    renderMatches();
+                }
+
+                // ADMIN UI
+                function renderAdmin() {
+                    const users = load(KEYS.users);
+                    $('#adminUsers').innerHTML = users.map(u => {
+                        return `<div class="grid"><div><strong>${escapeHtml(u.name||'Anonymous')}</strong><div class="small-muted">${u.mobile||''} • ${u.created_at? new Date(u.created_at).toLocaleString() : ''}</div></div><div style="display:flex;flex-direction:column;gap:6px"><button class="ghost admin-verify" data-id="${u.id}">Verify</button><button class="ghost admin-toggle-block" data-id="${u.id}">${u.blocked? 'Unblock' : 'Block'}</button></div></div>`;
+                    }).join('') || '<div class="small-muted">No users</div>';
+
+                    $('#adminPayments').innerHTML = load(KEYS.payments).map(p => {
+                                return `<div class="grid"><div><strong>${escapeHtml(p.upi_txn)}</strong><div class="small-muted">User: ${p.user_id} • ${new Date(p.created_at).toLocaleString()}</div></div><div>${p.verified? '<span class="pill">Verified</span>' : `<button class="ghost admin-verify-pay" data-id="${p.id}">Verify</button>`}</div></div>`;
+    }).join('') || '<div class="small-muted">No payments</div>';
+
+    // attach handlers
+    $$('.admin-verify').forEach(b => b.onclick = ()=>{
+      const uid = b.dataset.id;
+      // verify (grant premium 30 days)
+      const users = load(KEYS.users); const u = users.find(x=>x.id===uid);
+      if(u){ u.premium = true; u.premium_expiry = new Date(Date.now() + 30*24*3600*1000).toISOString(); save(KEYS.users, users); alert('User premium granted for 30 days'); renderAdmin(); }
+    });
+    $$('.admin-toggle-block').forEach(b => b.onclick = ()=>{
+      const uid = b.dataset.id; const users = load(KEYS.users); const u = users.find(x=>x.id===uid); if(!u) return;
+      u.blocked = !u.blocked; save(KEYS.users, users); renderAdmin();
+    });
+    $$('.admin-verify-pay').forEach(b => b.onclick = ()=> {
+      const pid = b.dataset.id;
+      const pays = load(KEYS.payments); const p = pays.find(x=>x.id===pid); if(!p) return;
+      p.verified = true; save(KEYS.payments, pays);
+      const users = load(KEYS.users); const u = users.find(x=>x.id===p.user_id); if(u){ u.premium = true; u.premium_expiry = new Date(Date.now()+30*24*3600*1000).toISOString(); save(KEYS.users, users); }
+      alert('Payment verified & premium set (30d)');
+      renderAdmin();
+    });
+  }
+
+  // payments / premium
+  $('#submitPayment').onclick = ()=>{
+    const s = getSession(); if(!s || s.role!=='user') return alert('Login as user');
+    const txn = $('#upiTxn').value.trim();
+    if(!txn) return alert('Enter UPI txn id (demo)');
+    const payments = load(KEYS.payments);
+    payments.unshift({ id:id(), user_id:s.id, upi_txn:txn, verified:false, created_at:nowISO() });
+    save(KEYS.payments, payments);
+    // mark pay pending flag on user
+    const users = load(KEYS.users); const me = users.find(x=>x.id===s.id);
+    me.paid_pending = true; save(KEYS.users, users);
+    alert('Payment submitted. Admin will verify (simulated).');
+    renderAdmin(); refreshLeft();
+  };
+
+  // premium modal (alternate)
+  function openPremiumModal(){ $('#premiumModal').style.display = 'flex'; }
+  $('#closePremiumModal').onclick = ()=> $('#premiumModal').style.display='none';
+  $('#confirmPremiumBtn').onclick = ()=>{
+    const s = getSession(); if(!s || s.role !== 'user') return;
+    const txn = $('#modalTxn').value.trim(); if(!txn) return alert('Enter txn (demo)');
+    const payments = load(KEYS.payments);
+    payments.unshift({ id:id(), user_id:s.id, upi_txn:txn, verified:false, created_at: nowISO() });
+    save(KEYS.payments, payments);
+    const users = load(KEYS.users); const me = users.find(x=>x.id===s.id); me.paid_pending = true; save(KEYS.users, users);
+    alert('Payment submitted — admin must verify in Admin panel (demo).');
+    $('#modalTxn').value = ''; $('#premiumModal').style.display='none';
+    renderAdmin(); refreshLeft();
+  };
+
+  // refresh premium info in right card
+  function refreshPremiumInfo(){
+    const s = getSession(); if(!s || s.role!=='user') return;
+    const users = load(KEYS.users); const me = users.find(x=>x.id===s.id);
+    if(me && me.premium && me.premium_expiry && new Date(me.premium_expiry) > new Date()){
+      $('#premiumCard').style.border = '2px solid rgba(255,122,162,0.12)';
+    } else $('#premiumCard').style.border = '';
+  }
+
+  // render notifications and matches periodically
+  function renderNotifsOnce(){
+    renderNotifs();
+    renderMatches();
+    renderAdmin();
+  }
+
+  // helper: escape
+  function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // utility: find top profile id
+  function topProfileId(){
+    const s = getSession(); if(!s || s.role!=='user') return null;
+    const me = s.id; const users = load(KEYS.users).filter(u=>u.id!==me && !u.blocked && u.photo);
+    const acted = load(KEYS.actions).filter(a => a.from_user === me).map(a=>a.to_user);
+    const avail = users.filter(u=>!acted.includes(u.id));
+    return avail.length? avail[0].id : null;
+  }
+
+  // like back button handler (notifications)
+  window.addEventListener('click', (ev) => {
+    if(ev.target && ev.target.matches && ev.target.matches('.openChatBtn')){
+      const id = ev.target.dataset.id; openChat(id);
+    }
+  });
+
+  // helper to simulate clicking open chat from matchToast
+  $('#openChatBtn').onclick = ()=> { $('#matchToast').style.display='none'; $('#btnChat').click(); renderMatches(); };
+
+  // when clicking navigation shortcuts
+  $('#btnChat').onclick = ()=> { $('#chatArea').style.display='none'; renderMatches(); };
+  $('#btnNotifications').onclick = ()=> { renderNotifs(); };
+
+  // periodic refresh
+  setInterval(()=>{ renderNotifs(); renderMatches(); refreshLeft(); refreshPremiumInfo(); }, 2000);
+
+  // initial load: check session
+  const session = getSession();
+  if(session && session.role === 'user'){ enterUser(); }
+  if(session && session.role === 'admin'){ enterAdmin(); }
+
+  // small helpers to ensure UI initial rendering
+  renderStack(); renderMatches(); renderNotifs(); renderAdmin();
+
+  // small keyboard shortcut: press L to like top
+  window.addEventListener('keydown', (e)=> { if(e.key.toLowerCase()==='l'){ $('#btnLike').click(); } if(e.key.toLowerCase()==='k'){ $('#btnSkip').click(); } });
+
+  // helper to create profile id from image (we used src identity)
+  // Not necessary now; kept for robustness
+
+  // final: expose some functions for dev console (optional)
+  window.loveconnect = { load, save, KEYS, seedIfEmpty, clearSession, getSession };
+
+})();
+    </script>
+
+</body>
+
+</html>
